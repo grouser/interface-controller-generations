@@ -28,11 +28,11 @@ class MControllerI(object):
         self.bytesize = bytesize
         self.coins_enabled = False # Controller doesn't read any coin by default
         self.connect_to_device()
-    
+
     def connect_to_device(self):
         try:
             self.device = serial.Serial(self.port, self.baud, timeout=self.timeout,
-                                        parity=self.parity, stopbits=self.stopbits, 
+                                        parity=self.parity, stopbits=self.stopbits,
                                         bytesize=self.bytesize)
         except serial.SerialException as exp:
             print "Error: Device doesn't exist or can not be configured. Output: {}".format(exp)
@@ -93,4 +93,3 @@ class MControllerI(object):
     def enable_coins_reader_if_disabled(self):
        if not self.coins_enabled:
            self.enable_coins()
-           self.coins_enabled = True

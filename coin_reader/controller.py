@@ -9,6 +9,9 @@ COINS_CODE = {
     'Coin#4': '0.20',
     'Coin#5': '0.50',
     'Coin#6': '1.00',
+    'Note#1': '5.00',
+    'Note#2': '10.00',
+    'Note#3': '20.00',
 }
 
 
@@ -17,7 +20,7 @@ class MControllerI(object):
     Implements functions to talk with a Multi-Function Controller
     Interface from Future Generations
     """
-    def __init__(self, port="/dev/ttyUSB0", baud=9600, timeout=1,
+    def __init__(self, port="/dev/ttyUSB0", baud=1200, timeout=1,
                  parity=serial.PARITY_NONE, stopbits=1,
                  bytesize=serial.EIGHTBITS):
         self.port = port
@@ -28,11 +31,11 @@ class MControllerI(object):
         self.bytesize = bytesize
         self.coins_enabled = False # Controller doesn't read any coin by default
         self.connect_to_device()
-
+    
     def connect_to_device(self):
         try:
             self.device = serial.Serial(self.port, self.baud, timeout=self.timeout,
-                                        parity=self.parity, stopbits=self.stopbits,
+                                        parity=self.parity, stopbits=self.stopbits, 
                                         bytesize=self.bytesize)
         except serial.SerialException as exp:
             print "Error: Device doesn't exist or can not be configured. Output: {}".format(exp)
@@ -64,7 +67,7 @@ class MControllerI(object):
     def listen_for_coins(self):
         """Listen any message until Control + C is pressed"""
         self.enable_coins_reader_if_disabled()
-        coin_regex = re.compile("Coin#[1-6]")
+        coin_regex = re.compile("Coin#[1-6]|Note#[1-3]")
         while True:
             msg = self.device.readall()
             match = coin_regex.search(msg)
@@ -83,6 +86,8 @@ class MControllerI(object):
     def enable_coins(self):
         """Enables the reader to read coins"""
         self.device.write("@")
+        self.device.write("+")
+        self.device.write("@")
         self.coins_enabled = True
 
     def disable_coins(self):
@@ -93,3 +98,4 @@ class MControllerI(object):
     def enable_coins_reader_if_disabled(self):
        if not self.coins_enabled:
            self.enable_coins()
+           self.coins_enabled = True
